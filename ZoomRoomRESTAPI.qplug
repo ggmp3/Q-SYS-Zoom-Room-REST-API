@@ -1,0 +1,2577 @@
+-- NOTES:
+-- Only utilise the 'Count' property within the Controls table within the Master_Object table if there is more than 1 control required.
+
+
+-- Information block for the plugin
+PluginInfo = {
+    Name = "Zoom~Zoom Room REST API", -- Name of the plugin
+    Version = "1.0", -- Current plugin version
+    Id = "qsysc.Zoom Room REST API", -- Unique identifier for the plugin. Must not conflict with other installed plugins
+    Description = "Plugin for control of Zoom Rooms from an organisational account level, using the REST API", -- A brief description of the plugin
+    BuildVersion = "0.0.0.0", -- Current code iteration tracking
+    Author = "Glen Gorton", -- Name or Contact Info of the author
+    Manufacturer = "Zoom", -- Name of manufacturer the product the plugin integrates
+    -- Model = "", -- Model name of the product the plugin integrates
+    -- IsManaged = true, -- Add the plugin to the managed inventory of the design
+    -- Type = "", -- Reflect reporting type
+    ShowDebug = true,
+  }
+  
+  width = 400 -- scalable plugin width
+  control_depth = 16 -- scalable control depth
+  control_gap = 3 -- vertical space between controls
+  
+  Colors = {
+      none = {0, 0, 0, 0},
+      primary = {212, 202, 226},
+      secondary = {51, 51, 51},
+      heading = {50, 50, 50},
+      label = {50, 50, 50},
+      stroke = {51, 51, 51},
+      black = {51, 51, 51},
+      navy = {15, 63, 106},
+      lightblue = {143, 197, 247},
+      darkgrey = {58,58,58},
+      lightgrey = {204,204,204},
+      yellow = {255, 204, 51},
+      zoomblue = {45, 140, 255}
+  }
+  
+  Sizes = {
+      ["Button"] = {36, control_depth},
+      ["Text"] = {(width - 30) / 2.5, control_depth},
+      ["TextMultiple"] = {(width - 30) / 5.5, control_depth},
+      ["Status"] = {width - 30, (control_depth * 2) + (control_gap * 1)},
+      ["LED"] = {16, control_depth},
+      ["LEDButtonLarge"] = {36, control_depth * 2}, -- This large LED requires 2x GridPos
+      ["ListBox"] = {width - 30, (control_depth * 8) + (control_gap * 9)},
+      ["Image"] = {width - 30, (control_depth * 6) + (control_gap * 5)},
+      ["CameraImage"] = {width - 130, (control_depth * 10) + (control_gap * 9)},
+  }
+  
+  Master_Object = {{
+  
+      ["PageName"] = "Configuration",
+  
+      ["Groupings"] = {{
+          ["Name"] = "Connection",
+          ["Depth"] = 4,
+          ["Controls"] = {{
+            Name = "AccountID",
+            PrettyName = "Connection~AccountID",
+            Label = "AccountID",
+            ControlType = "Text",
+            IndicatorType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "ClientID",
+            PrettyName = "Connection~ClientID",
+            Label = "ClientID",
+            ControlType = "Text",
+            IndicatorType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "ClientSecret",
+            PrettyName = "Connection~ClientSecret",
+            Label = "ClientSecret",
+            ControlType = "Text",
+            IndicatorType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Room Name",
+            PrettyName = "Connection~Room Name",
+            Label = "Room Name",
+            ControlType = "Text",
+            IndicatorType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }}
+    }, {
+        ["Name"] = "Status",
+        ["Depth"] = 4,
+        ["Controls"] = {{
+            Name = "Status",
+            PrettyName = "Status~Status",
+            Label = "Status",
+            ControlType = "Indicator",
+            IndicatorType = "Status",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Status,
+            GridPos = 1
+        }, {
+            Name = "Room Status",
+            PrettyName = "Status~Room Status",
+            Label = "Room Status",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "In Meeting",
+            PrettyName = "Status~In Meeting",
+            Label = "In Meeting",
+            ControlType = "Indicator",
+            IndicatorType = "LED",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.LED,
+            GridPos = 4
+        }}
+    }, {
+        ["Name"] = "Admin",
+        ["Depth"] = 14,
+        ["Controls"] = {{
+            Name = "Display Name",
+            PrettyName = "Admin~Display Name",
+            Label = "Display Name",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "Capacity",
+            PrettyName = "Admin~Capacity",
+            Label = "Capacity",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Activation Code",
+            PrettyName = "Admin~Activation Code",
+            Label = "Activation Code",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Support Phone",
+            PrettyName = "Admin~Support Phone",
+            Label = "Support Phone",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Room Passcode",
+            PrettyName = "Admin~Room Passcode",
+            Label = "Room Passcode",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Hide Room In Contacts",
+            PrettyName = "Admin~Hide Room In Contacts",
+            Label = "Hide Room In Contacts",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 6
+        }, {
+            Name = "Under Construction",
+            PrettyName = "Admin~Under Construction",
+            Label = "Under Construction",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 7
+        }, {
+            Name = "Show Contacts On Controller",
+            PrettyName = "Admin~Show Contacts On Controller",
+            Label = "Show Contacts On Controller",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 8
+        }, {
+            Name = "Auto Answer",
+            PrettyName = "Admin~Auto Answer",
+            Label = "Auto Answer",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 9
+        }, {
+            Name = "Auto Unmute",
+            PrettyName = "Admin~Auto Unmute",
+            Label = "Auto Unmute",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 10
+        }, {
+            Name = "Restart Zoom Room App",
+            PrettyName = "Admin~Restart Zoom Room App",
+            Label = "Restart Zoom Room App",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 11
+        }, {
+            Name = "Controller URL",
+            PrettyName = "Admin~Controller URL",
+            Label = "Controller URL",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 12
+        }, {
+            Name = "Room Table",
+            PrettyName = "Admin~Room Table",
+            Label = "Room Table",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            Hidden = true,
+            GridPos = 13
+        }, {
+            Name = "All Zoom Rooms Table",
+            PrettyName = "Admin~All Zoom Rooms Table",
+            Label = "All Zoom Rooms Table",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            Hidden = true,
+            GridPos = 14
+        }}
+    }, {
+        ["Name"] = "Alerts & Notifications",
+        ["Depth"] = 18,
+        ["Controls"] = {{
+            Name = "Alert Microphone Error",
+            PrettyName = "Alerts~Alert Microphone Error",
+            Label = "Alert Microphone Error",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }, {
+            Name = "Alert Speaker Error",
+            PrettyName = "Alerts~Alert Speaker Error",
+            Label = "Alert Speaker Error",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 2
+        }, {
+            Name = "Alert Camera Error",
+            PrettyName = "Alerts~Alert Camera Error",
+            Label = "Alert Camera Error",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 3
+        }, {
+            Name = "Alert CPU Usage",
+            PrettyName = "Alerts~Alert CPU Usage",
+            Label = "Alert CPU Usage",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 4
+        }, {
+            Name = "Alert Unstable Network",
+            PrettyName = "Alerts~Alert Unstable Network",
+            Label = "Alert Unstable Network",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 5
+        }, {
+            Name = "Notification Audio Quality",
+            PrettyName = "Notifications~Notification Audio Quality",
+            Label = "Notification Audio Quality",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 7
+        }, {
+            Name = "Notification Controller Battery Low",
+            PrettyName = "Notifications~Notification Controller Battery Low",
+            Label = "Notification Controller Battery Low",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 8
+        }, {
+            Name = "Notification Controller Disconnected",
+            PrettyName = "Notifications~Notification Controller Disconnected",
+            Label = "Notification Controller Disconnected",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 9
+        }, {
+            Name = "Notification High CPU Usage",
+            PrettyName = "Notifications~Notification High CPU Usage",
+            Label = "Notification High CPU Usage",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 10
+        }, {
+            Name = "Notification Network Unstable",
+            PrettyName = "Notifications~Notification Network Unstable",
+            Label = "Notification Network Unstable",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 11
+        }, {
+            Name = "Notification Zoom Room Offline",
+            PrettyName = "Notifications~Notification Zoom Room Offline",
+            Label = "Notification Zoom Room Offline",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 12
+        }, {
+            Name = "Notification Calendar Inaccessible",
+            PrettyName = "Notifications~Notification Calendar Inaccessible",
+            Label = "Notification Calendar Inaccessible",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 13
+        }, {
+            Name = "Notification SIP Registration Failed",
+            PrettyName = "Notifications~Notification SIP Registration Failed",
+            Label = "Notification SIP Registration Failed",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 14
+        }, {
+            Name = "Notification Mic Speaker Camera Disconnected",
+            PrettyName = "Notifications~Notification Mic Speaker Camera Disconnected",
+            Label = "Notification Mic Speaker Camera Disconnected",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 15
+        }, {
+            Name = "Notification Display Disconnected",
+            PrettyName = "Notifications~Notification Display Disconnected",
+            Label = "Notification Display Disconnected",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 16
+        }, {
+            Name = "Notification Digital Signage Empty",
+            PrettyName = "Notifications~Notification Digital Signage Empty",
+            Label = "Notification Digital Signage Empty",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 17
+        }, {
+            Name = "Notification Digital Signage Whiteboard",
+            PrettyName = "Alerts~Notification Digital Signage Whiteboard",
+            Label = "Notification Digital Signage Whiteboard",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 18
+        }}
+      }}
+  },{
+      ["PageName"] = "Rooms",
+  
+      ["Groupings"] = {{
+        ["Name"] = "Zoom Rooms",
+        ["Depth"] = 11,
+        ["Controls"] = {{
+            Name = "Number Of Zoom Rooms",
+            PrettyName = "Rooms~Number Of Zoom Rooms",
+            Label = "Number Of Zoom Rooms",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "Number Of Contacts",
+            PrettyName = "Rooms~Number Of Contacts",
+            Label = "Number Of Contacts",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Contact List",
+            PrettyName = "Rooms~Contact List",
+            Label = "Contact List",
+            ControlType = "Text",
+            Style = "ListBox",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.ListBox,
+            Width = "Full",
+            GridPos = 3
+        }}
+      }}
+    },{
+      ["PageName"] = "Meeting",
+  
+      ["Groupings"] = {{
+        ["Name"] = "Start / Join",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "New Meeting",
+            PrettyName = "Meeting~New Meeting",
+            Label = "New Meeting",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }, {
+            Name = "Meeting Source",
+            PrettyName = "Meeting~Meeting Source",
+            Label = "Meeting Source",
+            ControlType = "Text",
+            Style = "ComboBox",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Meeting ID",
+            PrettyName = "Meeting~Meeting ID",
+            Label = "Meeting ID",
+            ControlType = "Text",
+            IndicatorType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Password",
+            PrettyName = "Meeting~Password",
+            Label = "Password",
+            ControlType = "Text",
+            IndicatorType = "Text",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Join Meeting",
+            PrettyName = "Meeting~Join Meeting",
+            Label = "Join Meeting",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 6
+        }, {
+            Name = "Incoming Accept",
+            PrettyName = "Meeting~Incoming Accept",
+            Label = "Incoming Accept",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 8
+        }, {
+            Name = "Incoming Reject",
+            PrettyName = "Meeting~Incoming Reject",
+            Label = "Incoming Reject",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 9
+        }}
+    }, {
+        ["Name"] = "Sharing",
+        ["Depth"] = 2,
+        ["Controls"] = {{
+            Name = "Share Content Start",
+            PrettyName = "Meeting~Share Content Start",
+            Label = "Share Content Start",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }, {
+            Name = "Share Content Stop",
+            PrettyName = "Meeting~Share Content Stop",
+            Label = "Share Content Stop",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 2
+        }}
+    }, {
+        ["Name"] = "In Call Controls",
+        ["Depth"] = 5,
+        ["Controls"] = {{
+            Name = "Microphone Mute",
+            PrettyName = "Meeting~Microphone Mute",
+            Label = "Microphone Mute",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }, {
+            Name = "Camera Mute",
+            PrettyName = "Meeting~Camera Mute",
+            Label = "Camera Mute",
+            ControlType = "Button",
+            ButtonType = "Toggle",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 2
+        }, {
+            Name = "Meeting Leave",
+            PrettyName = "Meeting~Meeting Leave",
+            Label = "Meeting Leave",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 4
+        }, {
+            Name = "Meeting End",
+            PrettyName = "Meeting~Meeting End",
+            Label = "Meeting End",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 5
+        }}
+    }, {
+        ["Name"] = "Cameras",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "Cameras",
+            PrettyName = "Meeting~Cameras",
+            --Label = "Cameras",
+            ControlType = "Text",
+            Style = "ListBox",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.ListBox,
+            Width = "Full",
+            GridPos = 1
+        }, {
+            Name = "Switch Camera",
+            PrettyName = "Meeting~Switch Camera",
+            Label = "Switch Camera",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }}
+    }, {
+        ["Name"] = "Microphones",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "Microphones",
+            PrettyName = "Meeting~Microphones",
+            --Label = "Microphones",
+            ControlType = "Text",
+            Style = "ListBox",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.ListBox,
+            Width = "Full",
+            GridPos = 1
+        }, {
+            Name = "Switch Microphone",
+            PrettyName = "Meeting~Switch Microphone",
+            Label = "Switch Microphone",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }}
+    }, {
+        ["Name"] = "Speakers",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "Speakers",
+            PrettyName = "Meeting~Speakers",
+            --Label = "Speakers",
+            ControlType = "Text",
+            Style = "ListBox",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.ListBox,
+            Width = "Full",
+            GridPos = 1
+        }, {
+            Name = "Switch Speaker",
+            PrettyName = "Meeting~Switch Speaker",
+            Label = "Switch Speaker",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }}
+    }, {
+        ["Name"] = "Device Profiles",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "Device Profiles",
+            PrettyName = "Meeting~Device Profiles",
+            --Label = "Device Profiles",
+            ControlType = "Text",
+            Style = "ListBox",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.ListBox,
+            Width = "Full",
+            GridPos = 1
+        }, {
+            Name = "Switch Device Profile",
+            PrettyName = "Meeting~Switch Device Profile",
+            Label = "Switch Device Profile",
+            ControlType = "Button",
+            ButtonType = "Trigger",
+            PinStyle = "Both",
+            UserPin = true,
+            Size = Sizes.Button,
+            GridPos = 1
+        }}
+      }}
+    },{
+       ["PageName"] = "Devices",
+  
+      ["Groupings"] = {{
+          ["Name"] = "Computer",
+          ["Depth"] = 7,
+          ["Controls"] = {{
+            Name = "Computer Model",
+            PrettyName = "Devices~Computer Model",
+            Label = "Model",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "Computer Serial",
+            PrettyName = "Devices~Computer Serial",
+            Label = "Serial Number",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Computer App Version",
+            PrettyName = "Devices~Computer App Version",
+            Label = "App Version",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Computer System",
+            PrettyName = "Devices~Computer System",
+            Label = "Operating System",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Computer Hostname",
+            PrettyName = "Devices~Computer Hostname",
+            Label = "Hostname",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Computer IP Address",
+            PrettyName = "Devices~Computer IP Address",
+            Label = "IP Address",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 6
+        }, {
+            Name = "Computer Status",
+            PrettyName = "Devices~Computer Status",
+            Label = "Status",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 7
+        }}
+    }, {
+        ["Name"] = "Controller",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "Controller Manufacturer",
+            PrettyName = "Devices~Controller Manufacturer",
+            Label = "Manufacturer",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "Controller Model",
+            PrettyName = "Devices~Controller Model",
+            Label = "Model",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Controller Serial",
+            PrettyName = "Devices~Controller Serial",
+            Label = "Serial Number",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Controller App Version",
+            PrettyName = "Devices~Controller App Version",
+            Label = "App Version",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Controller System",
+            PrettyName = "Devices~Controller System",
+            Label = "Operating System",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Controller Hostname",
+            PrettyName = "Devices~Controller Hostname",
+            Label = "Hostname",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 6
+        }, {
+            Name = "Controller Firmware",
+            PrettyName = "Devices~Controller Firmware",
+            Label = "Firmware",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 7
+        }, {
+            Name = "Controller IP Address",
+            PrettyName = "Devices~Controller IP Address",
+            Label = "IP Address",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 8
+        }, {
+            Name = "Controller Status",
+            PrettyName = "Devices~Controller Status",
+            Label = "Status",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 9
+        }}
+    }, {
+        ["Name"] = "Scheduling Display",
+        ["Depth"] = 9,
+        ["Controls"] = {{
+            Name = "Scheduling Display Manufacturer",
+            PrettyName = "Devices~Scheduling Display Manufacturer",
+            Label = "Manufacturer",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "Scheduling Display Model",
+            PrettyName = "Devices~Scheduling Display Model",
+            Label = "Model",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Scheduling Display Serial",
+            PrettyName = "Devices~Scheduling Display Serial",
+            Label = "Serial Number",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Scheduling Display App Version",
+            PrettyName = "Devices~Scheduling Display App Version",
+            Label = "App Version",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Scheduling Display System",
+            PrettyName = "Devices~Scheduling Display System",
+            Label = "Operating System",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Scheduling Display Hostname",
+            PrettyName = "Devices~Scheduling Display Hostname",
+            Label = "Hostname",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 6
+        }, {
+            Name = "Scheduling Display Firmware",
+            PrettyName = "Devices~Scheduling Display Firmware",
+            Label = "Firmware",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 7
+        }, {
+            Name = "Scheduling Display IP Address",
+            PrettyName = "Devices~Scheduling Display IP Address",
+            Label = "IP Address",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 8
+        }, {
+            Name = "Scheduling Display Status",
+            PrettyName = "Devices~Scheduling Display Status",
+            Label = "Status",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 9
+        }}
+    }, {
+        ["Name"] = "Companion Whiteboard",
+        ["Depth"] = 7,
+        ["Controls"] = {{
+            Name = "Companion Whiteboard Model",
+            PrettyName = "Devices~Companion Whiteboard Model",
+            Label = "Model",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 1
+        }, {
+            Name = "Companion Whiteboard Serial",
+            PrettyName = "Devices~Companion Whiteboard Serial",
+            Label = "Serial Number",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 2
+        }, {
+            Name = "Companion Whiteboard App Version",
+            PrettyName = "Devices~Companion Whiteboard App Version",
+            Label = "App Version",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 3
+        }, {
+            Name = "Companion Whiteboard System",
+            PrettyName = "Devices~Companion Whiteboard System",
+            Label = "Operating System",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 4
+        }, {
+            Name = "Companion Whiteboard Hostname",
+            PrettyName = "Devices~Companion Whiteboard Hostname",
+            Label = "Hostname",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 5
+        }, {
+            Name = "Companion Whiteboard IP Address",
+            PrettyName = "Devices~Companion Whiteboard IP Address",
+            Label = "IP Address",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 6
+        }, {
+            Name = "Companion Whiteboard Status",
+            PrettyName = "Devices~Companion Whiteboard Status",
+            Label = "Status",
+            ControlType = "Indicator",
+            IndicatorType = "Text",
+            PinStyle = "Output",
+            UserPin = true,
+            Size = Sizes.Text,
+            GridPos = 7
+        }}
+    }}
+  }}
+  
+  
+  -- Define the color of the plugin object when dragged into the design
+  function GetColor(props)
+      return Colors.zoomblue
+  end
+  
+  -- The name that will initially display when dragged into a design
+  function GetPrettyName(props)
+    return string.format("Zoom Room\nREST API\n[%s]", PluginInfo.Version)
+  end
+  
+  -- Define User configurable Properties of the plugin
+  function GetProperties()
+      local props = {}
+      return props
+  end
+  
+  -- Optional function used if plugin has multiple pages
+  function GetPages(props)
+      local pages = {}
+      for i, tbl in ipairs(Master_Object) do
+        table.insert(pages, {name = tbl.PageName})
+      end
+      return pages
+  end
+  
+  -- Optional function to define pins on the plugin that are not connected to a Control
+  function GetPins(props)
+      local pins = {}
+      return pins
+  end
+  
+  -- Optional function to update available properties when properties are altered by the user
+  function RectifyProperties(props)
+      return props
+  end
+  
+  -- Optional function to define components used within the plugin
+  function GetComponents(props)
+      local components = {}
+      return components
+  end
+  
+  -- Optional function to define wiring of components used within the plugin
+  function GetWiring(props)
+      local wiring = {}
+      return wiring
+  end
+  
+  -- Defines the Controls used within the plugin
+  function GetControls(props)
+      local ctls = {}
+      for i, page in ipairs(Master_Object) do
+        for i, grouping in ipairs(page.Groupings) do
+            for i, control in ipairs(grouping.Controls) do
+                table.insert(ctls, control)
+            end
+        end
+      end
+      return ctls
+  end
+  
+  -- Layout of controls and graphics for the plugin UI to display
+  function GetControlLayout(props)
+      local graphics, layout, control_slots = {}, {}, {}
+      
+      local page_index = props["page_index"].Value
+      
+      -- starting depth
+      local total_depth = 0
+      
+      -- dynamically create graphics boxes
+      for i, grouping in ipairs(Master_Object[page_index].Groupings) do
+      
+          total_depth = total_depth + control_depth
+      
+          depth = grouping.Depth
+      
+          len = string.len(grouping.Name)
+      
+          table.insert(graphics, {
+              Type = "GroupBox",
+              Fill = Colors.zoomblue,
+              StrokeColor = Colors.stroke,
+              StrokeWidth = 2,
+              CornerRadius = 8,
+              HTextAlign = "Left",
+              Position = {
+                  0,
+                  total_depth
+              },
+              Size = {
+                  width,
+                  40 + (depth * control_depth) + ((depth - 1) * control_gap)
+              }
+          })
+      
+          -- generate control slots per group box depth and control_depth requirement
+      
+          grouping["Control_Slots"] = {}
+      
+          for n = 1, grouping.Depth do
+      
+              grouping["Control_Slots"][n] = ((total_depth + 25) + (control_depth * (n - 1)) + ((n - 1) * control_gap))
+      
+          end
+      
+          -- dynamically create groupbox labels
+          table.insert(graphics, {
+              Type = "Label",
+              Text = Master_Object[page_index].Groupings[i].Name,
+              -- Size = 11,
+              Color = {
+                  255,
+                  255,
+                  255
+              },
+              Fill = Colors.heading,
+              StrokeWidth = 0,
+              CornerRadius = 4,
+              Position = {
+                  15,
+                  total_depth - 8
+              },
+              Size = {
+                  len <= 12 and 90 or len <= 20 and 140 or len <= 30 and 170,
+                  18
+              },
+              Font = "Montserrat",
+              FontStyle = "Medium"
+          })
+      
+          total_depth = total_depth + 40 + ((depth * control_depth) + ((depth - 1) * control_gap))
+      
+      end
+      
+      -- width of the group box minus borders
+      local box_width = (width - 60)
+      
+      for i, grouping in ipairs(Master_Object[page_index].Groupings) do
+      
+          local Slots = grouping.Control_Slots
+      
+          for _, ctl in ipairs(grouping.Controls) do
+      
+              local pos_x = nil
+              local pos_y = nil
+      
+              if (ctl.Width and (ctl.Width == "Full")) then
+                  pos_x = 15
+                  pos_y = (Slots[ctl.GridPos] + control_depth + control_gap)
+              else
+                  if (ctl.Position) then
+                      pos_x = ctl.Position
+                  else
+                      pos_x = (width - 15) - ctl.Size[1]
+                  end
+                  pos_y = Slots[ctl.GridPos]
+              end
+      
+              -- Only runs if the 'Count' property is present in the Controls properties.
+              if ctl.Count then
+              
+                local name = ctl.Name
+                local prettyname = ctl.PrettyName
+                local size = ctl.Size
+              
+                  for n = 1 , ctl.Count do
+                    
+                    -- for controls with a control count > 1. Sort the pins into groups and add the number to the name
+                    if ctl.Count > 1 then
+                        prettyname = ctl.PrettyName..'~'..n
+                        name = ctl.Name.." "..n
+                    
+                    -- add the control to the control column, multiple controls are added left to right
+                    layout[name] = {
+                        PrettyName = prettyname,
+                        Legend = ctl.Legend,
+                        Style = ctl.Style,
+                        Size = ctl.Size,
+                        Position = {
+                          pos_x - ctl.Count * ctl.Size[1] +  n * ctl.Size[1],
+                          pos_y
+                        },
+                        Font = "Droid Sans",
+                        FontSize = 8
+                      }
+                    end
+                  end
+  
+                else
+                -- add the controls where the control count = 1
+                layout[ctl.Name] = {
+                    PrettyName = ctl.PrettyName,
+                    Legend = ctl.Legend,
+                    Style = ctl.Style,
+                    Position = {
+                        pos_x,
+                        pos_y
+                    },
+                    Size = ctl.Size,
+                    Font = "Droid Sans",
+                    FontSize = 8
+                  }
+              end
+              
+              -- Only runs if the Controls properties contain the 'Label' property.
+              if ctl.Label then
+                -- Only runs if the 'Count' property is present in the Controls properties.
+                if ctl.Count then
+                  table.insert(graphics, {
+                    Type = "Label",
+                    Text = ctl.Label,
+                    HTextAlign = "Left",
+                    Color = Colors.black,
+                    Font = "Droid Sans",
+                    Position = {
+                        15,
+                        (Slots[ctl.GridPos] ~= nil) and Slots[ctl.GridPos] or Slots[#Slots]
+                    },
+                    Size = {
+                        (ctl.Width == "Full") and (width - 30) or (width - 30) - ctl.Count * ctl.Size[1],
+                        control_depth
+                    }
+                })
+                else
+                  table.insert(graphics, {
+                      Type = "Label",
+                      Text = ctl.Label,
+                      HTextAlign = "Left",
+                      Color = Colors.black,
+                      Font = "Droid Sans",
+                      Position = {
+                          15,
+                          (Slots[ctl.GridPos] ~= nil) and Slots[ctl.GridPos] or Slots[#Slots]
+                      },
+                      Size = {
+                          (ctl.Width == "Full") and (width - 30) or (width - 30) - ctl.Size[1],
+                          control_depth
+                      }
+                  })
+                end
+              end
+      
+          end
+      
+      end
+      return layout, graphics
+  end
+  
+  
+  
+  ------------------------ USER COMPONENT Runtime Code is below wrapped inside of 'if Controls then...user script...end'
+  --Start event based logic
+  if Controls then
+
+--[[ 
+
+
+TO DO?
+-- When Joining a Meeting ID that has a Passcode, the passcode needs to be entered at the same time as the meeting ID. Only one request is sent containing both Meeting ID and Passcode. (ie. there is no response notifying, via the API, that a passcode is required.)
+-- Event Logs for key events (eg. meeting started, meeting ended, sharing started/ended)
+-- List device profiles = https://api.zoom.us/v2/rooms/{roomId}/device_profiles. Room has to have profiles configured otherwise and empty table is received as response. (eg. A408 - Receiving or Teaching profile selections)
+
+
+# Q-SYS-Zoom-Room-REST-API
+
+- Zoom Room REST API User Component
+- Written by Glen Gorton
+- This plugin was developed as best it could be, but the Zoom REST API has its limitations. Zoom were not receptive to improvements, instead directing me to the new Zoom Room Controller SDK. (https://developers.zoom.us/docs/rooms/controller/)
+- No further development will occur on this Plugin.
+
+## NOTES:
+1. Zoom Server-to-Server OAuth App Configuration
+   * This App needs to be created in order for Q-Sys Zoom Room scripts/plugins to authenticate with Zoom and download a token before the Zoom Room REST API command will function.
+   * Below are the steps/configuration used when creating the app.
+   * If the App needs to be recreated or the Account ID, Client ID, or Client Secret change, these credentials will need to be re-entered into the Zoom script/plugin on each Q-Sys Core controlling a Zoom Room.
+   * https://developers.zoom.us/docs/internal-apps/create/
+   * Take a note of your Secret Token during App Configuration.
+
+
+-- Scopes added to App (14):
+-- GET Requests (10):
+- Get a device profile = zoom_rooms:read:device_profile:admin
+- Get device information = zoom_rooms:read:device_profile:admin
+- Get Zoom Room profile = zoom_rooms:read:room:admin
+- Get Zoom Room sensor data = zoom_rooms:read:sensor_data:admin
+- Get Zoom Room settings = zoom_rooms:read:room_settings:admin
+- Get Zoom Rooms virtual controller URL = zoom_rooms:read:virtual_controller:admin
+- List device profiles = zoom_rooms:read:list_device_profiles:admin
+- List digital signage contents = zoom_rooms:read:list_digital_signage_contents:admin
+- List Zoom Room devices = zoom_rooms:read:list_devices:admin
+- List Zoom Rooms = zoom_rooms:read:list_rooms:admin
+- Note: ‘Get a device profile’ and ‘Get device information’ use the same Scope.
+
+-- PATCH Requests (5):
+- Update a device profile = zoom_rooms:update:device_profile:admin
+- Update a Zoom Room profile = zoom_rooms:update:room:admin
+- Update E911 digital signage = zoom_rooms:update:room_controls:admin
+- Update Zoom Room settings = zoom_rooms:update:room_settings:admin
+- Use Zoom Room controls = zoom_rooms:update:room_control:admin
+
+-- I have not set any of the Scopes as Optional. Assuming that by enabling them all it will allow for easier plugin development.
+
+
+## REST API ISSUES:
+1. Get Zoom Rooms virtual controller URL = https://api.zoom.us/v2/rooms/{roomId}/virtual_controller. Responds with below example. Found that "id" needs to be used rather than "room_id" as per the API. https://api.zoom.us/v2/rooms/{id}/virtual_controller
+    HTML Data: 
+    {
+        "code": 300520002,
+        "success": false,
+        "message": "No Zoom Rooms found."
+    }
+
+2. zoomroom.thirdparty_meeting_join works for joining a MS Teams meeting, but zoomroom.meeting_leave and zoomroom.meeting_end won't Leave the meeting.
+   * Unable to Leave a MS Teams meeting without physically pressing 'Leave' on the Controller.
+   * Support ticket TS1910188 logged with Zoom. Zoom have advised I need to submit a feature request via Zoom Workplace -> Help Give Feedback. Submitted 22/08/2025.
+
+3. zoomroom.share_content_start
+   * When NOT in a meeting, appears to do nothing. Shouldn't this behave in the same was as the 'Share Content' button on the Controller which will share HDMI content (if 'Start HDMI content share manually on controller') is enabled in Room Settings?
+   * When in a Zoom meeting, the Sharing pop up will come up and zoomroom.share_content_stop will close the popup.
+   * Is there a way to Share Content -> HDMI via the REST API? (ie. Controller Interface = Share Content -> Use HDMI -> Share To Meeting)
+   * Support ticket TS1910200 logged with Zoom.
+   * Zoom have advised I need to submit a feature request via Zoom Workplace -> Help Give Feedback. Submitted 22/08/2025.
+
+4. "Kiosk" zoom_room_type will not respond with "name" or "hide_room_in_contacts" (and many other properties when requesting the Room Profile (https://api.zoom.us/v2/rooms/{roomId}).
+   * Feedback submitted to Zoom 29/08/2025.
+   * If this gets resolved, delete the IF statement "if getdata.basic.name ~= nil then"
+
+5. There does not appear to be a method to invite another Zoom Room to a meeting using the REST API. I expected I'd be able to invite a room using "room_id" or "name".
+   * Feedback submitted to Zoom 05/09/2025.
+
+6. There are API commands for accepting or declining an incoming meeting, but there's no way to know via the API whether a call is incoming or who's calling!
+   * zoomroom.meeting_accept
+   * zoomroom.meeting_decline
+   * ZR-CSAPI has a notification (zEvent IncomingCallIndication) for incoming call and also details of the incoming caller.
+   * Feedback submitted to Zoom 26/09/2025.
+
+7. Meeting Password notification doesn't exist. When joining a meeting that requires a password, there is no notification/response/error from the API that advises a password is required.
+   * The Zoom Controller will pop up requesting a password, and the ZR-CSAPI has a notification that meeting needs password: (MeetingNeedsPassword needsPassword: true)
+   * Using the REST API, there is no way to inform the end user (or the control system) that a password is required to join the meeting.
+   * The room "status" remains as "Available" so there's no way to know what state the meeting is in.
+   * zoomroom.meeting_leave needs to be sent to exit out of the passcode entry screen on the Controller.
+   * Feedback submitted to Zoom 26/09/2025.
+
+8. Mic & Camera Mute states.
+   * There are PATCH requests to mute/unmute the microphone and camera. Video and audio mute on and off:
+   * zoomroom.mute
+   * zoomroom.unmute
+   * zoomroom.video_mute
+   * zoomroom.video_unmute
+   * But there is no GET request to discover the mute state of the microphone or camera.
+   * The ZR-CSAPI utilises "zConfiguration Call Microphone Mute - In-Meeting" and "zConfiguration Call Camera Mute - In-Meeting" to GET and SET mute states.
+   * Feedback submitted to Zoom 26/09/2025.
+
+
+]]--
+
+json = require('rapidjson')
+
+tokenTimer = Timer.New()
+roomProfileSendTimer = Timer.New()
+UpdateCurrentZoomRoomTimer = Timer.New()
+
+--local accountID = Controls["AccountID"].String --your App Credentials Account ID
+--local clientID = Controls["ClientID"].String -- your App Credentials Client ID
+--local clientSecret =  Controls["ClientSecret"].String -- your App Credentials Client Secret 
+
+InitialAccessTokenRequest = true
+InitialBuildRoomProflies = true
+NumberOfZoomRooms = 0
+AllZoomRooms = {}
+AllZoomRoomsTableCount = 0
+RoomIDs = {}
+lastGetRequest = ""
+Controls["Meeting Source"].Choices = {"Zoom", "Microsoft Teams", "Google Meet"}
+Controls["Meeting Source"].String = "Zoom"
+Controls["Contact List"].Choices = {}
+Controls["Cameras"].Choices = {}
+Controls["Speakers"].Choices = {}
+Controls["Microphones"].Choices = {}
+Controls["Device Profiles"].Choices = {}
+Controls["In Meeting"].Boolean = false
+
+Text_Indicators = {
+"Number Of Zoom Rooms",
+"Number Of Contacts",
+"Capacity",
+"Room Passcode",
+"Room Table",
+"All Zoom Rooms Table",
+"Activation Code",
+"Display Name",
+"Support Phone",
+"Controller Manufacturer",
+"Controller Model",
+"Controller Serial",
+"Controller App Version",
+"Controller System",
+"Controller Hostname",
+"Controller Firmware",
+"Controller IP Address",
+"Controller Status",
+"Computer Model",
+"Computer Serial",
+"Computer App Version",
+"Computer System",
+"Computer Hostname",
+"Computer IP Address",
+"Computer Status",
+"Scheduling Display Manufacturer",
+"Scheduling Display Model",
+"Scheduling Display Serial",
+"Scheduling Display App Version",
+"Scheduling Display System",
+"Scheduling Display Hostname",
+"Scheduling Display Firmware",
+"Scheduling Display IP Address",
+"Scheduling Display Status",
+"Companion Whiteboard Model",
+"Companion Whiteboard Serial",
+"Companion Whiteboard System",
+"Companion Whiteboard Hostname",
+"Companion Whiteboard IP Address",
+"Companion Whiteboard Status",
+"Controller URL",
+"Room Status",
+"Meeting ID",
+"Password",
+}
+
+-- HTTP Client Functions
+
+-- Get Access Token (https://developers.zoom.us/docs/internal-apps/s2s-oauth/#generate-access-token)
+-- The token is the owner's access token.
+-- The token's time to live is one hour (3600 seconds).
+-- There is no refresh token.
+-- You can generate and use multiple access tokens.
+-- Tokens stop working when the app is deactivated.
+-- Server-to-Server OAuth apps can be deleted.
+-- Account administrators authorize the scopes available to developers building these app types.
+
+function GetAccessToken()
+  HttpClient.Post {
+    Url = "https://zoom.us/oauth/token",
+    Data = "grant_type=account_credentials&account_id="..Controls["AccountID"].String,
+    Headers = {
+      ["Content-Type"] = "application/x-www-form-urlencoded",
+      ["Authorization"] = "Basic "..Crypto.Base64Encode(Controls["ClientID"].String..":"..Controls["ClientSecret"].String)
+    },
+    EventHandler = tokenPostDone -- The function to call upon response
+  }
+
+  -- If this is the first request after script starts, update status to Initializing.
+  if InitialAccessTokenRequest == true then
+    -- Set Status to Initializing - Requesting OAuth Access Token to access Organisation Zoom Account.
+    SetStatus(5, "Requesting OAuth Access Token to access Organisation Zoom Account.")
+  end
+
+  -- Clear the AllZoomRooms{} table and resets NumberOfZoomRooms at each token request.
+  --AllZoomRooms = {}
+  --NumberOfZoomRooms = 0
+end
+
+function tokenPostDone(tbl, code, data, err)
+  print(string.format("Response Code: %i\t\tErrors: %s\rData: %s",code, err or "None", data))
+
+  if code == 400 then 
+    reason = json.decode(data).reason
+    error = json.decode(data).error
+    -- Set Status to Compromised and end function.
+    SetStatus(1, "Access Token Failure: "..reason.." : "..error)
+  return end 
+
+  access_token = json.decode(data).access_token
+  token_type = json.decode(data).token_type
+  expires_in = json.decode(data).expires_in
+  scope = json.decode(data).scope
+  api_url = json.decode(data).api_url
+  print("Access Token: \n"..access_token)
+  print("Token Type: "..token_type)
+  print("Expires In: "..expires_in)
+  print("Scope: \n"..scope:gsub(" ", "\n")) -- \n and gsub used to print each Scope on a new line in the Debug Output.
+  print("API URL: "..api_url)
+
+  -- Start timer to generate a new token before token expires. Dividing original token time to live by 2 in order to ensure token doesn't expire.
+  -- The token's time to live is one hour (3600 seconds).
+  if expires_in then
+    tokenTimer:Start(math.floor(expires_in/2))
+    print("Token timer started: "..math.floor(expires_in/2) .. "secs")
+  end
+
+  -- Send GET request: List Zoom Rooms https://api.zoom.us/v2/rooms?type=ZoomRoom
+  -- Requesting only 'ZoomRoom' "type" and populate the AllZoomRooms{} table. ("zoom_room_type": "ZoomRoom")
+  -- Requesting the "page_size" is 100 (default is 30) to reduce the number of responses.
+  if access_token then
+    GetRequest("?type=ZoomRoom&page_size=100")
+    --GetRequest("?type=ZoomRoom")
+    --GetRequest("")
+    --GetRequest("?page_size=100")
+  end
+
+end
+
+-- When tokenTimer expires, send HttpClient.Post request for new token.
+tokenTimer.EventHandler = function()
+  GetAccessToken()
+end
+
+
+
+-- GET Requests 
+function GetRequest(data)
+  HttpClient.Download {
+    Url = "https://api.zoom.us/v2/rooms"..data,
+    --Data = data,
+    Headers = {
+      ["Content-Type"] = "application/json",
+      ["Authorization"] = "Bearer "..access_token -- access token obtained using GetAccessToken()
+    },
+    Timeout = 30,
+    EventHandler = GetRequestDone -- The function to call upon response
+  }
+end
+
+function GetRequestDone(tbl, code, data, err, headers)
+  print(string.format( "HTTP response from '%s': Return Code=%i; Error=%s", tbl.Url, code, err or "None" ) )
+
+  -- Decode the response, then encode to print pretty.
+  local getdata = json.decode(data)
+  print( "\rHTML Data: \n"..json.encode(getdata, {pretty = true}))
+
+
+  -- If "rooms" table is returned (https://api.zoom.us/v2/rooms/) then create a table of all Rooms.
+  if getdata.rooms then
+
+    -- When the number of rooms within getdata.rooms is just 1 room, this will be the Get request to update the status of the room being controlled.
+    if getdata.rooms and #getdata.rooms == 1 and getdata.rooms[1].name == Controls["Room Name"].String then
+
+      for i, room in ipairs(getdata.rooms) do
+          -- local variable for exisiting table
+          local exsitingtable = AllZoomRooms[room.name] or {}
+          -- merge new data into existing table.
+          exsitingtable.id = room.id
+          exsitingtable.room_id = room.room_id
+          exsitingtable.location_id = room.location_id
+          exsitingtable.status = room.status
+          exsitingtable.tag_ids = room.tag_ids
+          -- update the AllZoomRooms table
+          AllZoomRooms[room.name] = exsitingtable
+      end
+        Controls["Room Status"].String = AllZoomRooms[Controls["Room Name"].String].status
+        if AllZoomRooms[Controls["Room Name"].String].status == "InMeeting" then 
+          Controls["In Meeting"].Boolean = true
+          -- Set Status to OK - In Meeting
+          SetStatus(0, "In Meeting")
+        elseif AllZoomRooms[Controls["Room Name"].String].status == "Available" then
+          Controls["In Meeting"].Boolean = false
+          -- Set Status to OK - Available
+          SetStatus(0, "Available")
+        elseif AllZoomRooms[Controls["Room Name"].String].status == "UnderConstruction" then
+          Controls["In Meeting"].Boolean = false
+          -- Set Status to Not Present - Under Construction
+          SetStatus(3, "Under Construction")
+        elseif AllZoomRooms[Controls["Room Name"].String].status == "Offline" then
+          Controls["In Meeting"].Boolean = false
+          -- Set Status to Fault - Offline
+          SetStatus(2, "Offline")
+        end
+    return end
+
+
+    for i, room in ipairs(getdata.rooms) do
+        -- local variable for exisiting table
+        local exsitingtable = AllZoomRooms[room.name] or {}
+        -- merge new data into existing table.
+        exsitingtable.id = room.id
+        exsitingtable.room_id = room.room_id
+        exsitingtable.location_id = room.location_id
+        exsitingtable.status = room.status
+        exsitingtable.tag_ids = room.tag_ids
+        -- update the AllZoomRooms table
+        AllZoomRooms[room.name] = exsitingtable
+    end
+
+    -- Add the number of Zoom Rooms found in getdata.rooms to a global variable.
+    -- NumberOfZoomRooms = NumberOfZoomRooms + (#getdata.rooms)
+
+    -- If there is more than one page of rooms in the list (depending on page_size parameter sent), a next_page_token will be provided to be used as a param for a follow-up request.
+    -- If no ?page_size= param is sent, the default is 30 rooms per response. Maximum is ?page_size=300.
+    -- NOTE: if a ?page_size= param is sent on the initial GET request, that same page size param needs to be sent with the next_page_token param. (eg. GetRequest("?page_size=100&next_page_token="..pageToken))
+    -- NOTE: if no ?page_size= param is sent, the default (30) needs to be included in any follow-up requests (ie. GetRequest("?page_size=30&next_page_token="..pageToken))
+    -- NOTE: you must also include any other params that were included in the intial GET request (eg. "?type=ZoomRoom" )
+    if getdata.next_page_token ~= "" then
+      local pageToken = getdata.next_page_token
+      GetRequest("?type=ZoomRoom&page_size=100&next_page_token="..pageToken)
+      --GetRequest("?page_size=100&next_page_token="..pageToken)
+
+      if InitialAccessTokenRequest == true then
+        -- Set Status to Initializing - Building AllZoomRooms table.
+        SetStatus(5, "Access Token success! Building 'AllZoomRooms' table.")
+        -- Set InitialAccessTokenRequest to false to prevent repeating Initializing status when GetAccessToken is run again.
+        InitialAccessTokenRequest = false
+      end
+    end
+    
+    -- If next_page_token is not returned, this is the end of the rooms list.
+    -- Print the AllZoomRooms table and check table contains all of the organisation accounts Zoom Rooms.
+    -- Then, send the Get Zoom Room profile request to add details into the AllZoomRooms table (ie. zoom_room_type, room_passcode, hide_room_in_contacts, under_construction)
+    if getdata.next_page_token == "" then
+    
+      print(json.encode(AllZoomRooms, {pretty = true}))
+      
+      -- Print the number of rooms added to the AllZoomRooms table and update AllZoomRoomsTableCount variable.
+      local roomcount = 0
+      for i in pairs(AllZoomRooms) do
+        roomcount = roomcount + 1
+      end
+
+      AllZoomRoomsTableCount = roomcount
+      Controls["Number Of Zoom Rooms"].String = AllZoomRoomsTableCount
+      print(AllZoomRoomsTableCount..": AllZoomRooms Table (type=ZoomRoom)")
+      
+      -- Print the number of rooms from GET request. The size of this will be 
+      --print(NumberOfZoomRooms..": Number Of Zoom Rooms (type=ZoomRoom) within organisation account.")
+
+      -- Send GET Zoom Room profile request for each room = https://api.zoom.us/v2/rooms/{roomId}
+      BuildRoomProflies()
+
+    end
+
+
+  -- Zoom Room Profile.
+  -- If "basic", "device" and "setup" tables are returned (https://api.zoom.us/v2/rooms/{roomId}) add this information to AllZoomRooms table.
+  elseif getdata.basic and getdata.device and getdata.setup then
+    -- Basic table.
+    AllZoomRooms[getdata.basic.name]["basic"] = getdata.basic
+
+    -- Update script/plugin controls for the Zoom Room being controlled.
+    if AllZoomRooms[Controls["Room Name"].String] ~= nil and AllZoomRooms[Controls["Room Name"].String].basic ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then
+      -- Room Passcode
+      if AllZoomRooms[Controls["Room Name"].String].basic.room_passcode == "" then 
+        Controls["Room Passcode"].String = "Not Set"  
+      else
+        Controls["Room Passcode"].String = AllZoomRooms[Controls["Room Name"].String].basic.room_passcode
+      end
+      -- Activation Code
+      if AllZoomRooms[Controls["Room Name"].String].basic.activation_code == "" then 
+        Controls["Activation Code"].String = "Not Set"  
+      else
+        Controls["Activation Code"].String = AllZoomRooms[Controls["Room Name"].String].basic.activation_code
+      end
+      -- Display Name
+      if AllZoomRooms[Controls["Room Name"].String].basic.display_name == "" then 
+        Controls["Display Name"].String = "Not Set"  
+      else
+        Controls["Display Name"].String = AllZoomRooms[Controls["Room Name"].String].basic.display_name
+      end
+      -- Capacity
+      if AllZoomRooms[Controls["Room Name"].String].basic.capacity == "" then 
+        Controls["Capacity"].String = "Not Set"  
+      else
+        Controls["Capacity"].String = AllZoomRooms[Controls["Room Name"].String].basic.capacity
+      end
+      -- Support Phone
+      if AllZoomRooms[Controls["Room Name"].String].basic.support_phone == "" then 
+        Controls["Support Phone"].String = "Not Set"  
+      else
+        Controls["Support Phone"].String = AllZoomRooms[Controls["Room Name"].String].basic.support_phone
+      end
+      -- Hide Room In Contacts
+      Controls["Hide Room In Contacts"].Boolean = AllZoomRooms[Controls["Room Name"].String].basic.hide_room_in_contacts
+    end
+
+
+    -- Setup Table
+    AllZoomRooms[getdata.basic.name]["setup"] = getdata.setup
+
+    -- Update script/plugin controls for the Zoom Room being controlled.
+    if AllZoomRooms[Controls["Room Name"].String] ~= nil and AllZoomRooms[Controls["Room Name"].String].setup ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then
+      -- Under Construction
+      Controls["Under Construction"].Boolean = AllZoomRooms[Controls["Room Name"].String].setup.under_construction
+      -- Update Controller URL string - URL is unavailable when room is Under Construction
+      if AllZoomRooms[Controls["Room Name"].String].setup.under_construction == true then 
+        Controls["Controller URL"].String = "Unavailable when Under Construction."
+      end
+    end
+
+
+    -- Device Table
+    -- Response contains "device_profile_id" -> not used in this script.
+    AllZoomRooms[getdata.basic.name]["device"] = getdata.device
+
+
+  -- Devices Table
+  -- List Zoom Room Devices - Devices that are Signed In to the Zoom Room.
+  -- "device_type": "Controller" appears to be DTEN Mate or iPad controllers.
+  -- "device_type": "Zoom Rooms Computer" appears to be Zoom PC's, DTEN All-In-One devices (DTEN D7, DTEN ME).
+  -- "device_type": "Zoom Rooms Control System" appears to be rooms using the ZR-CSAPI (eg. Q-Sys Cores). Not useful information for this script and being depreciated.
+  -- "device_type": "Scheduling Display" appears to be DTEN Mates configured as scheduling display.
+  -- "device_type": "Companion Whiteboard".
+  elseif getdata.devices then
+    AllZoomRooms[Controls["Room Name"].String]["devices"] = getdata.devices
+
+    if AllZoomRooms[Controls["Room Name"].String].devices ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then  
+      for i, dev in ipairs(getdata.devices) do 
+        if dev.device_type == "Controller" then
+          if dev.device_manufacturer then Controls["Controller Manufacturer"].String = dev.device_manufacturer end
+          if dev.device_model then Controls["Controller Model"].String = dev.device_model end
+          if dev.serial_number then Controls["Controller Serial"].String = dev.serial_number end
+          if dev.app_version then Controls["Controller App Version"].String = dev.app_version end
+          if dev.device_system then Controls["Controller System"].String = dev.device_system end
+          if dev.device_hostname then Controls["Controller Hostname"].String = dev.device_hostname end
+          if dev.device_firmware then Controls["Controller Firmware"].String = dev.device_firmware end
+          if dev.ip_address then Controls["Controller IP Address"].String = dev.ip_address end
+          if dev.status then Controls["Controller Status"].String = dev.status end
+        elseif dev.device_type == "Zoom Rooms Computer" then
+          if dev.device_model then Controls["Computer Model"].String = dev.device_model end
+          if dev.serial_number then Controls["Computer Serial"].String = dev.serial_number end
+          if dev.app_version then Controls["Computer App Version"].String = dev.app_version end
+          if dev.device_system then Controls["Computer System"].String = dev.device_system end
+          if dev.device_hostname then Controls["Computer Hostname"].String = dev.device_hostname end
+          if dev.ip_address then Controls["Computer IP Address"].String = dev.ip_address end
+          if dev.status then Controls["Computer Status"].String = dev.status end
+        elseif dev.device_type == "Scheduling Display" then
+          if dev.device_manufacturer then Controls["Scheduling Display Manufacturer"].String = dev.device_manufacturer end
+          if dev.device_model then Controls["Scheduling Display Model"].String = dev.device_model end
+          if dev.serial_number then Controls["Scheduling Display Serial"].String = dev.serial_number end
+          if dev.app_version then Controls["Scheduling Display App Version"].String = dev.app_version end
+          if dev.device_system then Controls["Scheduling Display System"].String = dev.device_system end
+          if dev.device_hostname then Controls["Scheduling Display Hostname"].String = dev.device_hostname end
+          if dev.device_firmware then Controls["Scheduling Display Firmware"].String = dev.device_firmware end
+          if dev.ip_address then Controls["Scheduling Display IP Address"].String = dev.ip_address end
+          if dev.status then Controls["Scheduling Display Status"].String = dev.status end
+        elseif dev.device_type == "Companion Whiteboard" then
+          if dev.device_model then Controls["Companion Whiteboard Model"].String = dev.device_model end
+          if dev.serial_number then Controls["Companion Whiteboard Serial"].String = dev.serial_number end
+          if dev.app_version then Controls["Companion Whiteboard App Version"].String = dev.app_version end
+          if dev.device_system then Controls["Companion Whiteboard System"].String = dev.device_system end
+          if dev.device_hostname then Controls["Companion Whiteboard Hostname"].String = dev.device_hostname end
+          if dev.ip_address then Controls["Companion Whiteboard IP Address"].String = dev.ip_address end
+          if dev.status then Controls["Companion Whiteboard Status"].String = dev.status end
+        end
+      end
+    end
+
+
+  -- Zoom Room Device Information - Devices connected to the Zoom Room (Eg. cameras, microphones, speakers)
+  elseif getdata.cameras or getdata.speakers or getdata.microphones then
+
+    -- Cameras Table  
+    if getdata.cameras then
+      local cameras = {}
+      AllZoomRooms[Controls["Room Name"].String]["cameras"] = getdata.cameras
+        for i in pairs(getdata.cameras) do
+          --print("Camera: "..getdata.cameras[i].name)
+          --print("Camera: "..getdata.cameras[i].id)
+          table.insert(cameras, getdata.cameras[i].name)
+        end
+      -- Sort the cameras table alphabetically.
+      table.sort(cameras)
+      Controls["Cameras"].Choices = cameras
+    end
+
+    -- Speakers Table
+    if getdata.speakers then
+      local speakers = {}
+      AllZoomRooms[Controls["Room Name"].String]["speakers"] = getdata.speakers
+        for i in pairs(getdata.speakers) do
+          --print("Speaker: "..getdata.speakers[i].name)
+          --print("Speaker: "..getdata.speakers[i].id)
+          table.insert(speakers, getdata.speakers[i].name)
+        end
+      -- Sort the speakers table alphabetically.
+      table.sort(speakers)
+      Controls["Speakers"].Choices = speakers  
+    end
+
+    -- Microphones Table
+    if getdata.microphones then
+      local microphones = {}
+      AllZoomRooms[Controls["Room Name"].String]["microphones"] = getdata.microphones
+      for i in pairs(getdata.microphones) do
+        --print("Microphone: "..getdata.microphones[i].name)
+        --print("Microphone: "..getdata.microphones[i].id)
+        table.insert(microphones, getdata.microphones[i].name)
+      end
+      -- Sort the microphones table alphabetically.
+      table.sort(microphones)
+      Controls["Microphones"].Choices = microphones  
+  end 
+  
+  
+  -- Zoom Room Settings: setting_type=alert
+  -- This information is added to the AllZoomRooms table for the controlled room.
+  elseif getdata.notification and getdata.client_alert then
+    AllZoomRooms[Controls["Room Name"].String]["notification"] = getdata.notification
+    AllZoomRooms[Controls["Room Name"].String]["client_alert"] = getdata.client_alert
+    
+    if AllZoomRooms[Controls["Room Name"].String].zoom_rooms ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then
+      -- Alert Speaker Error - Alert when detect speaker error
+      Controls["Alert Speaker Error"].Boolean = AllZoomRooms[Controls["Room Name"].String].client_alert.detect_speaker_error_alert
+      -- Alert Microphone Error - Alert when detect microphone error
+      Controls["Alert Microphone Error"].Boolean = AllZoomRooms[Controls["Room Name"].String].client_alert.detect_microphone_error_alert
+      -- Alert Camera Error - Alert when detect camera error
+      Controls["Alert Camera Error"].Boolean = AllZoomRooms[Controls["Room Name"].String].client_alert.detect_camera_error_alert
+      -- Alert CPU Usage - The alert will display when CPU usage is above 90%
+      Controls["Alert CPU Usage"].Boolean = AllZoomRooms[Controls["Room Name"].String].client_alert.cpu_usage_high_detected_notification_on_zr_display
+      -- Alert Unstable Network - The alert will display when the network connection bandwidth is low, or the connection is unstable.
+      Controls["Alert Unstable Network"].Boolean = AllZoomRooms[Controls["Room Name"].String].client_alert.network_unstable_detected_notification_on_zr_display
+
+      -- Notification Audio Quality - Send an email when the audio echo test result does not meet usability threshold.
+      Controls["Notification Audio Quality"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.audio_not_meet_usability_threshold
+      -- Notification Controller Battery Low - Controller or scheduling display battery is low. Send an email when the battery is low and is not charging
+      Controls["Notification Controller Battery Low"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.battery_low_and_not_charging
+      -- Notification Controller Disconnected - Controller or scheduling display disconnected. Send an email when the connection to the Controller or Scheduling Display cannot be detected.
+      Controls["Notification Controller Disconnected"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.controller_scheduling_disconnected
+      -- Notification High CPU Usage - High CPU usage is detected. Send an email when CPU usage is above 90%.
+      Controls["Notification High CPU Usage"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.cpu_usage_high_detected
+      -- Notification Network Unstable - Low bandwidth network is detected. Send an email when the network is unstable.
+      Controls["Notification Network Unstable"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.network_unstable_detected
+      -- Notification Zoom Room Offline - Zoom Room is offline. Send an email when the machine hosting the Zoom Room application has a network issue or cannot connect with the Controller.
+      Controls["Notification Zoom Room Offline"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.zoom_room_offline
+      -- Notification Calendar Inaccessible - Zoom Room calendar resource is inaccessible. Send an email when a Zoom Room with calendar integration configured is unable to access its associated calendar resource.
+      Controls["Notification Calendar Inaccessible"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.zoom_room_calendar_resource_is_inaccessible
+      -- Notification SIP Registration Failed - SIP registration has failed. Send an email when SIP registration stops working. Enter credentials in the Cloud Console to re-register.
+      Controls["Notification SIP Registration Failed"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.sip_registration_failed
+      -- Notification Mic Speaker Camera Disconnected - Selected mic, speaker or camera has disconnected. Send an email when the mic, speaker or camera is disconnected by the Zoom Room.
+      Controls["Notification Mic Speaker Camera Disconnected"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.mic_speaker_camera_disconnected
+      -- Notification Display Disconnected - Zoom Rooms Display is disconnected. Send an email when the TV display is disconnected
+      Controls["Notification Display Disconnected"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.zoom_room_display_disconnected
+      -- Notification Digital Signage Empty - Zoom Rooms Digital Signage is enabled with an empty Digital Signage content list. Send an email when a Zoom Room with Digital Signage enabled is no longer showing Digital Signage due to an empty Digital Signage content list.
+      Controls["Notification Digital Signage Empty"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.zoom_room_digital_signage_is_enabled_with_an_empty_digital_signage_content_list
+      -- Notification Digital Signage Whiteboard - Zoom Rooms Digital Signage cannot access a Whiteboard in its content list. Send an email when a Zoom Room is configured to show a Whiteboard in Digital Signage, but cannot access the Whiteboard due to incorrect permissions or Whiteboard deletion.
+      Controls["Notification Digital Signage Whiteboard"].Boolean = AllZoomRooms[Controls["Room Name"].String].notification.zoom_room_digital_signage_cannot_access_a_whiteboard_in_its_content_list
+    end 
+  
+  
+
+  -- Zoom Room Settings: setting_type=meeting
+  -- This information is added to the AllZoomRooms table for the controlled room.
+  -- Only a couple of responses/commands are being used.
+  elseif getdata.zoom_rooms and getdata.meeting_security then
+    AllZoomRooms[Controls["Room Name"].String]["zoom_rooms"] = getdata.zoom_rooms
+    AllZoomRooms[Controls["Room Name"].String]["meeting_security"] = getdata.meeting_security
+
+    if AllZoomRooms[Controls["Room Name"].String].zoom_rooms ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then
+      -- Auto Answer - Automatically accept incoming meeting join request
+      Controls["Auto Answer"].Boolean = AllZoomRooms[Controls["Room Name"].String].zoom_rooms.incoming_meeting_request.automatically_accept_incoming_meeting_request
+      -- Auto Unmute - Automatically unmute
+      Controls["Auto Unmute"].Boolean = AllZoomRooms[Controls["Room Name"].String].zoom_rooms.incoming_meeting_request.automatically_unmute
+      -- Show Contact List On Controller
+      Controls["Show Contacts On Controller"].Boolean = AllZoomRooms[Controls["Room Name"].String].zoom_rooms.show_contact_list_on_controller
+    end 
+
+
+  -- Zoom Room Settings: setting_type=signage
+  -- This information is added to the AllZoomRooms table for the controlled room, but it not used.
+  elseif getdata.digital_signage then
+    AllZoomRooms[Controls["Room Name"].String]["digital_signage"] = getdata.digital_signage
+
+
+  -- Zoom Room Settings: setting_type=scheduling_display
+  -- This information is added to the AllZoomRooms table for the controlled room, but it not used.
+  elseif getdata.scheduling_display then
+    AllZoomRooms[Controls["Room Name"].String]["scheduling_display"] = getdata.scheduling_display
+
+
+  -- Zoom Rooms Virtual Controller URL​
+  -- NOTE: url is not returned within a unique table, so if "url" is used in another response this could break.
+  elseif getdata.url then
+    AllZoomRooms[Controls["Room Name"].String]["url"] = getdata.url
+
+    if AllZoomRooms[Controls["Room Name"].String].url ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then
+      -- Zoom Room Controller URL
+      Controls["Controller URL"].String = AllZoomRooms[Controls["Room Name"].String].url
+    end 
+
+
+  -- List Zoom Room Device Profiles​
+  -- NOTE: device profiles are not returned within a unique table, so lastGetRequest variable is used.
+  elseif lastGetRequest == "GetDeviceProfile" then
+    AllZoomRooms[Controls["Room Name"].String]["device_profile"] = getdata
+    
+    -- If the Zoom Room does not have any "device_profile"s, end function.
+    if AllZoomRooms[Controls["Room Name"].String]["device_profile"][1] == nil then return end
+    
+    -- Device Profiles
+    local deviceprofiles = {}
+    for i in pairs(AllZoomRooms[Controls["Room Name"].String]["device_profile"]) do
+      --print("Device Profile: "..AllZoomRooms[Controls["Room Name"].String].device_profile[i].name)
+      --print("Device Profile: "..AllZoomRooms[Controls["Room Name"].String].device_profile[i].id)
+      table.insert(deviceprofiles, AllZoomRooms[Controls["Room Name"].String].device_profile[i].name)
+    end
+    -- Sort the cameras table alphabetically.
+    table.sort(deviceprofiles)
+    Controls["Device Profiles"].Choices = deviceprofiles
+    
+    -- Reset the lastGetRequest
+    lastGetRequest = ""
+
+    -- Select the current Default Profile in Controls["Device Profiles"]
+    local currentdeviceprofileID = AllZoomRooms[Controls["Room Name"].String].device.device_profile_id
+    for i, deviceprofile in ipairs(AllZoomRooms[Controls["Room Name"].String].device_profile) do
+      if deviceprofile.id == currentdeviceprofileID then 
+        Controls["Device Profiles"].String = deviceprofile.name
+        break
+      end
+    end
+  end
+
+
+  -- Update the 'Room Table' controls for visibility.
+  Controls["Room Table"].String = json.encode(AllZoomRooms[Controls["Room Name"].String], {pretty = true})
+end
+
+
+-- PATCH Requests 
+function PatchRequestRoomControls(data, method, params)
+  HttpClient.Patch {
+    Url = "https://api.zoom.us/v2"..data,
+    Data = json.encode({
+      method = method,
+      params = params,
+      }), -- the method (eg. zoomroom.unmute) and params needs to be json encoded.
+    Headers = {
+      ["Content-Type"] = "application/json",
+      ["Authorization"] = "Bearer "..access_token -- access token obtained using GetAccessToken()
+    },
+    EventHandler = PatchRequestDone -- The function to call upon response
+  }
+end
+
+-- PATCH Requests 
+function PatchRequestRoomProfile(data, body)
+  HttpClient.Patch {
+    Url = "https://api.zoom.us/v2"..data,
+    Data = json.encode(
+      body
+      ), -- the method (eg. zoomroom.unmute) and params needs to be json encoded.
+    Headers = {
+      ["Content-Type"] = "application/json",
+      ["Authorization"] = "Bearer "..access_token -- access token obtained using GetAccessToken()
+    },
+    EventHandler = PatchRequestDone -- The function to call upon response
+  }
+end
+
+
+function PatchRequestDone(tbl, code, data, err)
+  print( string.format("Response Code: %i\t\tErrors: %s\rData: %s",code, err or "None", data))
+  
+  -- Decode the response, then encode to print pretty.
+  -- local patchdata = json.decode(data)
+  -- print( "\rHTML Data: \n"..json.encode(patchdata, {pretty = true}))
+end
+
+
+
+-- FUNCTIONS
+
+function Initialize()
+  ResetTextIndicators()
+end
+
+
+function ResetTextIndicators()
+  for i, control_name in ipairs(Text_Indicators) do
+    Controls[control_name].String = ""
+  end
+end
+
+
+function SetStatus(code, message, lookup)
+  -- if there's a lookup key, fetch the code and message
+  if lookup then
+    code = status_tbl[lookup].code
+    message = status_tbl[lookup].message
+  end
+  
+  Controls["Status"].Value = code
+  Controls["Status"].String = message
+  
+  if (code ~= 0) then return print(string.format("User.Info: Settings Status with Code: '%d', Message: '%s'", code, message)) end
+  if (code == 2) then end
+end
+
+
+-- Send GET Zoom Room profile request for each room = https://api.zoom.us/v2/rooms/{roomId}
+function BuildRoomProflies()
+
+  if InitialBuildRoomProflies == true then
+    -- Set Status to Initializing - Building Room Profiles.
+    SetStatus(5, "Building Room Profiles within 'AllZoomRooms' table.")
+    InitialBuildRoomProflies = false
+  end
+
+  -- Index to track which command to send. Reset to 1 when function is called.
+  RoomProfileCurrentIndex = 1
+
+  -- Empty RoomIDs table before building table.
+  RoomIDs = {}
+
+  for room_name, room_info in pairs(AllZoomRooms) do
+    --print(room_name .. " room_id: "..room_info.room_id)
+    table.insert(RoomIDs, room_info.room_id)
+  end
+
+  print(#RoomIDs..": RoomIDs in AllZoomRooms Table (type=ZoomRoom)")
+  roomProfileSendTimer:Start(0.1)
+end
+
+-- roomProfileSendTimer eventhandler.
+roomProfileSendTimer.EventHandler = function()
+
+  if RoomProfileCurrentIndex <= #RoomIDs then
+    -- Request Room Profile
+    GetRequest("/"..RoomIDs[RoomProfileCurrentIndex])
+    -- Print and then increase the RoomProfileCurrentIndex for the next time the eventhandler is called.
+    print("Index: "..RoomProfileCurrentIndex)
+    RoomProfileCurrentIndex = RoomProfileCurrentIndex + 1
+  
+  else
+    roomProfileSendTimer:Stop()
+
+    -- Update the 'All Zoom Rooms Table' controls for visibility.
+    Controls["All Zoom Rooms Table"].String = json.encode(AllZoomRooms, {pretty = true})
+
+    -- Once Room Profile details have been added to the AllZoomRooms table, add them to the Contact List.
+    Timer.CallAfter(function()
+      CreateContactList()
+    end, 3)
+
+    -- Start the timer to update the current Zoom Room entry within the AllZoomRoomsTable table entry. Checks first to confirm "Room Name" is valid.
+    if AllZoomRooms[Controls["Room Name"].String] ~= nil and AllZoomRooms[Controls["Room Name"].String].basic ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then
+      UpdateCurrentZoomRoomTimer:Start(5)
+    else
+      SetStatus(2, "\"Room Name\" is blank or incorrect.")
+    end 
+
+    -- Rebuild AllZoomRooms table and RoomProfiles every 30 seconds.
+    -- This is to update the Contact List with any new or removed rooms, and update the room_info.status string. (eg. Available, Offline, InMeeting)
+    Timer.CallAfter(function()
+      GetRequest("?type=ZoomRoom&page_size=100")
+    end, 30)
+
+  end
+end
+
+
+-- Create Contact List.
+function CreateContactList()
+  local contacts = {}
+  for room_name, room_info in pairs(AllZoomRooms) do
+    if room_info.basic.zoom_room_type == "ZoomRoom" and room_info.setup.under_construction == false and room_info.basic.hide_room_in_contacts == false then
+      table.insert(contacts, room_name.." ("..room_info.status..")")
+    end
+    -- Sort the contacts table alphabetically.
+    table.sort(contacts)
+  end
+
+  Controls["Contact List"].Choices = contacts
+  Controls["Number Of Contacts"].String = #contacts
+  print(#contacts..": Number Of Contacts (ZoomRoom's that are not 'Under Construction' or 'Hidden From Contacts').")
+
+end
+
+
+-- UpdateCurrentZoomRoomTimer Eventhandler
+-- Update current Zoom Room entry within the AllZoomRoomsTable table entry.
+UpdateCurrentZoomRoomTimer.EventHandler = function()
+  -- stop the timer.
+  UpdateCurrentZoomRoomTimer:Stop()
+  -- send GET requests to update status and details of the current Zoom Room.
+  --GetRequest("?query_name="..Controls["Room Name"].String)
+  GetRequest("?query_name="..HttpClient.EncodeString(Controls["Room Name"].String))
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id)
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/devices")
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/device_profiles/devices")
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert")
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=meeting")
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=scheduling_display")
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].id.."/virtual_controller")
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=signage")
+  
+  GetRequest("/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/device_profiles")
+  lastGetRequest = "GetDeviceProfile"
+
+  -- start the timer again to repeat the refreshing of the current Zoom Room.
+  UpdateCurrentZoomRoomTimer:Start(5)
+
+end
+
+
+
+
+-- List Zoom Rooms = https://api.zoom.us/v2/rooms/
+-- Query Parameters:
+  -- status = Type: string enum. The status of the Zoom Room. (Offline, Available, InMeeting, UnderConstruction)
+  -- tag_ids = Type: string. The room tag IDs associated with the Zoom Room. Use commas (,) to separate between them. It's 'OR' logic if query for multiple tags.
+  -- type = Type: string enum. The type of Zoom Rooms. (Kiosk, ZoomRoom, StandaloneWhiteboard, SchedulingDisplayOnly, DigitalSignageOnly, PersonalZoomRoom)
+  -- unassigned_rooms =  Type: boolean default: false. Use this query parameter with a value of true if you would like to see Zoom Rooms in your account that have not been assigned to anyone yet.
+  -- page_size =  Type: integer max: 300 default: 30. The number of records returned within a single API call.
+  -- next_page_token = Type: string. Use the next page token to paginate through large result sets. A next page token is returned whenever the set of available results exceeds the current page size. This token's expiration period is 15 minutes.
+  -- location_id = Type: string. The parent location ID of the Zoom Room.
+  -- query_name = Type: string. The name of a Zoom Room. If you do not call this parameter, the API will return all of the account's Zoom Rooms.
+
+
+-- Get Zoom Room profile = https://api.zoom.us/v2/rooms/{roomId}
+-- Path Parameters:
+  -- roomId = Type: string (required). The unique identifier of the Zoom Room. This can be retrieved from the response of the List Zoom Rooms API.
+-- Query Parameters:
+  -- regenerate_activation_code. Type: boolean default: false. Whether to regenerate an activation code for a Zoom Room. Default is false.
+
+
+-- List Zoom Room devices = https://api.zoom.us/v2/rooms/{roomId}/devices
+-- Path Parameters:
+  -- roomId = Type: string (required). Unique Identifier of the Zoom Room. This can be retrieved from the response of List Zoom Rooms API.
+
+
+-- Get device information = https://api.zoom.us/v2/rooms/{roomId}/device_profiles/devices
+-- Path Parameters:
+  -- roomId = Type: string (required). The Zoom Room's ID.
+
+
+-- List device profiles = https://api.zoom.us/v2/rooms/{roomId}/device_profiles
+-- Path Parameters:
+  -- roomId = Type: string (required). The Zoom Room's ID.
+
+
+-- Get a device profile = https://api.zoom.us/v2/rooms/{roomId}/device_profiles/{deviceProfileId}
+-- Path Parameters:
+  -- roomId = Type: string (required) The Zoom Room's ID.
+  -- deviceProfileId = Type: string (required). The Zoom Room device profile's ID.
+
+
+-- Get Zoom Room settings = https://api.zoom.us/v2/rooms/{roomId}/settings
+-- Path Parameters:
+  -- roomId = Type: string (required) Unique Identifier of the Zoom Room.
+-- Query Parameters:
+-- setting_type Type: string default: "meeting" (required). The type of setting that you would like to retrieve.
+  -- alert: Alert settings of the Zoom Room.
+  -- meeting: Meeting settings of the Zoom Room.
+  -- signage: Digital Signage settings of the Zoom Room.
+  -- scheduling_display: Scheduling Display settings of the Zoom Room.
+
+
+-- Get Zoom Rooms virtual controller URL = https://api.zoom.us/v2/rooms/{id}/virtual_controller
+-- Path Parameters:
+  -- roomId = Type: string (required). The unique identifier of the Zoom Room. This can be retrieved from the response of the List Zoom Rooms API.
+-- Query Parameters:
+  -- pre_authenticated_link = Type: boolean. If true, the URL for the virtual controller will contain a time-limited authentication token (10 minute lifetime) that will permit to the virtual controller without requiring login to Zoom admin portal. Default is false.
+
+
+-- Zoom Room controls​ = https://api.zoom.us/v2/rooms/{id}/events
+  -- Controls Zoom Rooms, including:
+    -- Room check-in and check-out.
+      -- zoomroom.check_in
+      -- zoomroom.check_out
+    -- Video and audio mute on and off.
+      -- zoomroom.mute
+      -- zoomroom.unmute
+      -- zoomroom.video_mute
+      -- zoomroom.video_unmute
+    -- Incoming meeting request accept or decline.
+      -- zoomroom.meeting_accept
+      -- zoomroom.meeting_decline
+    -- Meeting join, leave, or end.
+      -- zoomroom.meeting_join (Params: meeting_number Type:string (required), passcode Type:string, force_accept Type:boolean, make_zoom_room_host Type:boolean)
+      -- zoomroom.meeting_leave
+      -- zoomroom.meeting_invite (Params: user_ids Type:array string[] (required)). For Rooms, the "id" (not room_id) is the user_id.
+      -- zoomroom.meeting_cancel (Params: meeting_topic Type:string (required), start_time Type:string(required), duration Type:integer, timezone Type:string)
+      -- zoomroom.meeting_end
+      -- zoomroom.meeting_schedule (Params: meeting_topic Type:string (required), start_time Type:string (required), passcode Type:string, duration Type:integer, timezone Type:string, settings Type:object (join_before_host Type:boolean))
+      -- zoomroom.thirdparty_meeting_join (Params: event_id Type:string, passcode Type:string, join_type Type:string enum, meeting_source_type Type:string enum, join_url Type:string, sip_address Type:string, third_party_meeting_id Type:string)
+    -- Room restart. Restart the Zoom Rooms app running on the PC.
+      -- zoomroom.restart
+    -- Cancellation.
+    -- Switch between available cameras, speakers or microphones during a meeting.
+      -- zoomroom.switch_camera (Params: cameraId Type:string (required))
+      -- zoomroom.switch_microphone (Params: microphoneId Type:string (required))
+      -- zoomroom.switch_speaker (Params: speakerId Type:string (required))
+    -- Start or stop screen sharing.
+      -- zoomroom.share_content_start
+      -- zoomroom.share_content_stop
+    -- Perform speaker volume changes during a meeting.
+      -- zoomroom.volume_level (Params: volume_level Type:integer)
+    -- Alerts. Start a Zoom Room alert.
+      -- zoomroom.alarm_start
+      -- zoomroom.alarm_stop
+  -- Path Parameters:
+    -- id: Type:string (required) = The room ID.
+
+
+
+-- Eventhandlers
+
+-- Zoom Room Controls
+-- Meeting join, leave, or end.
+-- zoomroom.meeting_join (Params: meeting_number Type:string (required), passcode Type:string, force_accept Type:boolean, make_zoom_room_host Type:boolean)
+-- zoomroom.thirdparty_meeting_join (Params: meeting_source_type Type:string, third_party_meeting_id Type:string, passcode Type:string, sip_address Type:string, join_url Type:string, event_id Type:string)
+
+ -- Join Meeting (instant Zoom meeting)
+Controls["New Meeting"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_join", {meeting_number = ""})
+end
+
+Controls["Join Meeting"].EventHandler = function()
+  -- Zoom Meeting: Meet Now / New Meeting (instant Zoom meeting)
+  if Controls["Meeting ID"].String == "" and Controls["Meeting Source"].String == "Zoom" then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_join", {meeting_number = ""})
+  -- Zoom Meeting: Meeting ID, No Passcode
+  elseif Controls["Meeting ID"].String ~= "" and Controls["Password"].String == "" and Controls["Meeting Source"].String == "Zoom" then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_join", {meeting_number = Controls["Meeting ID"].String}) -- Join Meeting with ID (no passcode)
+  -- Zoom Meeting: Meeting ID & Passcode
+  elseif Controls["Meeting ID"].String ~= "" and Controls["Password"].String ~= "" and Controls["Meeting Source"].String == "Zoom" then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_join", {meeting_number = Controls["Meeting ID"].String , passcode = Controls["Password"].String}) -- Join Meeting with ID (with passcode)
+  -- MS Teams Meeting: Meeting ID & Passcode
+  elseif Controls["Meeting ID"].String ~= "" and Controls["Password"].String ~= "" and Controls["Meeting Source"].String == "Microsoft Teams" then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.thirdparty_meeting_join", {join_type = "meeting_id", meeting_source_type = "MS_TEAMS", third_party_meeting_id = Controls["Meeting ID"].String, passcode = Controls["Password"].String}) -- Meeting Join MS Teams
+  end
+end
+
+-- zoomroom.meeting_leave
+Controls["Meeting Leave"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_leave")
+end
+
+-- zoomroom.meeting_end
+Controls["Meeting End"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_end")
+end
+
+-- Incoming meeting request accept or decline.
+-- zoomroom.meeting_accept
+Controls["Incoming Accept"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_accept")
+end
+
+-- zoomroom.meeting_decline
+Controls["Incoming Reject"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.meeting_decline")
+end
+
+-- Video and audio mute on and off.
+-- zoomroom.mute
+-- zoomroom.unmute
+Controls["Microphone Mute"].EventHandler = function(ctl)
+  if ctl.Boolean == true then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.mute")
+  elseif ctl.Boolean == false then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.unmute")
+  end
+end
+
+-- zoomroom.video_mute
+-- zoomroom.video_unmute
+Controls["Camera Mute"].EventHandler = function(ctl)
+  if ctl.Boolean == true then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.video_mute")
+  elseif ctl.Boolean == false then
+    PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.video_unmute")
+  end
+end
+
+-- Share Content Start. Start sharing content on the Zoom Rooms client.
+-- Only works within a meeting to bring up the Sharing Instructions. Cannot be used to Start HDMI share.
+-- zoomroom.share_content_start
+Controls["Share Content Start"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.share_content_start")
+end
+
+-- Share Content Stop. Stop sharing content on the Zoom Rooms client.
+-- Only works within a meeting to hide the Sharing Instructions, or if HDMI is sharing, it will end HDMI Share.
+-- zoomroom.share_content_stop
+Controls["Share Content Stop"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.share_content_stop")
+end
+
+-- Switch Camera. Switch the camera used by the Zoom Rooms client during a meeting. This API has no effect if the Zoom Rooms client is not in a meeting.
+-- Zoom Room will revert back to default selection when meeting ends.
+-- zoomroom.switch_camera (params = cameraId)
+Controls["Switch Camera"].EventHandler = function()
+  -- find Camera ID within AllZoomRooms table.
+  local switchcameraID = nil
+    for i, cam in ipairs(AllZoomRooms[Controls["Room Name"].String].cameras) do
+      if cam.name == Controls["Cameras"].String then 
+        switchcameraID = cam.id
+        break
+      end
+    end
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.switch_camera", {cameraId = switchcameraID})
+end
+
+-- Switch Microphone. Switch the microphone used by the Zoom Rooms client during a meeting. This API has no effect if the Zoom Rooms client is not in a meeting.
+-- Zoom Room will revert back to default selection when meeting ends.
+-- zoomroom.switch_microphone (params = microphoneId)
+Controls["Switch Microphone"].EventHandler = function()
+  -- find Camera ID within AllZoomRooms table.
+  local switchmicrophoneID = nil
+    for i, mic in ipairs(AllZoomRooms[Controls["Room Name"].String].microphones) do
+      if mic.name == Controls["Microphones"].String then 
+        switchmicrophoneID = mic.id
+        break
+      end
+    end
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.switch_microphone", {microphoneId = switchmicrophoneID})
+end
+
+-- Switch Speaker. Switch the speaker used by the Zoom Rooms client during a meeting. This API has no effect if the Zoom Rooms client is not in a meeting.
+-- Zoom Room will revert back to default selection when meeting ends.
+-- zoomroom.switch_speaker (params = speakerId)
+Controls["Switch Speaker"].EventHandler = function()
+  -- find Camera ID within AllZoomRooms table.
+  local switchspeakerID = nil
+    for i, speaker in ipairs(AllZoomRooms[Controls["Room Name"].String].speakers) do
+      if speaker.name == Controls["Speakers"].String then 
+        switchspeakerID = speaker.id
+        break
+      end
+    end
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.switch_speaker", {speakerId = switchspeakerID})
+end
+
+
+-- Room restart. Restart the Zoom Rooms app running on the PC.
+-- zoomroom.restart
+Controls["Restart Zoom Room App"].EventHandler = function()
+  PatchRequestRoomControls("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/events", "zoomroom.restart")
+end
+
+
+
+-- Update Zoom Room Profile:
+-- {basic = { hide_room_in_contacts" }
+Controls["Hide Room In Contacts"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/", {basic = { hide_room_in_contacts = Controls["Hide Room In Contacts"].Boolean},})
+end
+
+-- Switch Device Profile.
+-- {device = { device_profile_id" }
+Controls["Switch Device Profile"].EventHandler = function()
+  -- find Device Profile ID within AllZoomRooms table.
+  local deviceprofileID = nil
+    for i, deviceprofile in ipairs(AllZoomRooms[Controls["Room Name"].String].device_profile) do
+      if deviceprofile.name == Controls["Device Profiles"].String then 
+        deviceprofileID = deviceprofile.id
+        break
+      end
+    end
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/", {device = { device_profile_id = deviceprofileID},})
+end
+
+-- {setup = { under_construction }
+Controls["Under Construction"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/", {setup = { under_construction = Controls["Under Construction"].Boolean},})
+end
+
+
+
+-- Update Zoom Room Settings:
+-- {zoom_rooms = { incoming_meeting_request = { automatically_accept_incoming_meeting_request }
+Controls["Auto Answer"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings", {zoom_rooms = { incoming_meeting_request = { automatically_accept_incoming_meeting_request = Controls["Auto Answer"].Boolean},}})
+end
+
+-- {zoom_rooms = { incoming_meeting_request = { automatically_unmute }
+Controls["Auto Unmute"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings", {zoom_rooms = { incoming_meeting_request = { automatically_unmute = Controls["Auto Unmute"].Boolean},}})
+end
+
+-- zoom_rooms = { show_contact_list_on_controller }
+Controls["Show Contacts On Controller"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings", {zoom_rooms = { show_contact_list_on_controller = Controls["Show Contacts On Controller"].Boolean},})
+end
+
+-- {client_alert = { detect_microphone_error_alert }
+Controls["Alert Microphone Error"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {client_alert = { detect_microphone_error_alert = Controls["Alert Microphone Error"].Boolean},})
+end
+
+-- {client_alert = { detect_speaker_error_alert }
+Controls["Alert Speaker Error"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {client_alert = { detect_speaker_error_alert = Controls["Alert Speaker Error"].Boolean},})
+end
+
+-- {client_alert = { detect_camera_error_alert }
+Controls["Alert Camera Error"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {client_alert = { detect_camera_error_alert = Controls["Alert Camera Error"].Boolean},})
+end
+
+-- {client_alert = { cpu_usage_high_detected_notification_on_zr_display }
+Controls["Alert CPU Usage"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {client_alert = { cpu_usage_high_detected_notification_on_zr_display = Controls["Alert CPU Usage"].Boolean},})
+end
+
+-- {client_alert = { network_unstable_detected_notification_on_zr_display }
+Controls["Alert Unstable Network"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {client_alert = { network_unstable_detected_notification_on_zr_display = Controls["Alert Unstable Network"].Boolean},})
+end
+
+-- {notification = { audio_not_meet_usability_threshold }
+Controls["Notification Audio Quality"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { audio_not_meet_usability_threshold = Controls["Notification Audio Quality"].Boolean},})
+end
+
+-- {notification = { battery_low_and_not_charging }
+Controls["Notification Controller Battery Low"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { battery_low_and_not_charging = Controls["Notification Controller Battery Low"].Boolean},})
+end
+
+-- {notification = { controller_scheduling_disconnected }
+Controls["Notification Controller Disconnected"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { controller_scheduling_disconnected = Controls["Notification Controller Disconnected"].Boolean},})
+end
+
+-- {notification = { cpu_usage_high_detected }
+Controls["Notification High CPU Usage"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { cpu_usage_high_detected = Controls["Notification High CPU Usage"].Boolean},})
+end
+
+-- {notification = { network_unstable_detected }
+Controls["Notification Network Unstable"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { network_unstable_detected = Controls["Notification Network Unstable"].Boolean},})
+end
+
+-- {notification = { zoom_room_offline }
+Controls["Notification Zoom Room Offline"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { zoom_room_offline = Controls["Notification Zoom Room Offline"].Boolean},})
+end
+
+-- {notification = { zoom_room_calendar_resource_is_inaccessible }
+Controls["Notification Calendar Inaccessible"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { zoom_room_calendar_resource_is_inaccessible = Controls["Notification Calendar Inaccessible"].Boolean},})
+end
+
+-- {notification = { sip_registration_failed }
+Controls["Notification SIP Registration Failed"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { sip_registration_failed = Controls["Notification SIP Registration Failed"].Boolean},})
+end
+
+-- {notification = { mic_speaker_camera_disconnected }
+Controls["Notification Mic Speaker Camera Disconnected"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { mic_speaker_camera_disconnected = Controls["Notification Mic Speaker Camera Disconnected"].Boolean},})
+end
+
+-- {notification = { zoom_room_display_disconnected }
+Controls["Notification Display Disconnected"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { zoom_room_display_disconnected = Controls["Notification Display Disconnected"].Boolean},})
+end
+
+-- {notification = { zoom_room_digital_signage_is_enabled_with_an_empty_digital_signage_content_list }
+Controls["Notification Digital Signage Empty"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { zoom_room_digital_signage_is_enabled_with_an_empty_digital_signage_content_list = Controls["Notification Digital Signage Empty"].Boolean},})
+end
+
+-- {notification = { zoom_room_digital_signage_cannot_access_a_whiteboard_in_its_content_list }
+Controls["Notification Digital Signage Whiteboard"].EventHandler = function()
+  PatchRequestRoomProfile("/rooms/"..AllZoomRooms[Controls["Room Name"].String].room_id.."/settings?setting_type=alert", {notification = { zoom_room_digital_signage_cannot_access_a_whiteboard_in_its_content_list = Controls["Notification Digital Signage Whiteboard"].Boolean},})
+end
+
+
+-- Script/Plugin Controls:
+
+Controls["Room Name"].EventHandler = function()
+  -- stop the timer.
+  UpdateCurrentZoomRoomTimer:Stop()
+  -- Start the timer to update the current Zoom Room entry within the AllZoomRoomsTable table entry. Checks first to confirm "Room Name" is valid.
+  if AllZoomRooms[Controls["Room Name"].String] ~= nil and AllZoomRooms[Controls["Room Name"].String].basic ~= nil and AllZoomRooms[Controls["Room Name"].String].basic.name == Controls["Room Name"].String then
+    UpdateCurrentZoomRoomTimer:Start(1)
+  else
+    SetStatus(2, "\"Room Name\" is blank or incorrect.")
+  end 
+end
+
+Controls["ClientSecret"].EventHandler = function()
+  -- Retry Server-to-server OAuth token request.
+  GetAccessToken()
+end
+
+Controls["ClientID"].EventHandler = function()
+  -- Retry Server-to-server OAuth token request.
+  GetAccessToken()
+end
+
+Controls["AccountID"].EventHandler = function()
+  -- Retry Server-to-server OAuth token request.
+  GetAccessToken()
+end
+
+
+Initialize()
+
+GetAccessToken()
+
+end
