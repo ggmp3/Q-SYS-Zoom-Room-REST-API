@@ -5,6 +5,12 @@
 - This plugin was developed as best it could be, but the Zoom REST API has its limitations. Zoom were not receptive to improvements, instead directing me to the new Zoom Room Controller SDK. (https://developers.zoom.us/docs/rooms/controller/)
 - No further development will occur on this Plugin.
 
+![alt text](https://github.com/ggmp3/Q-SYS-Zoom-Room-REST-API/blob/main/1Configuration.jpg "ConfigurationTab")
+![alt text](https://github.com/ggmp3/Q-SYS-Zoom-Room-REST-API/blob/main/2Rooms.jpg "RoomsTab")
+![alt text](https://github.com/ggmp3/Q-SYS-Zoom-Room-REST-API/blob/main/3Meeting.jpg "MeetingTab")
+![alt text](https://github.com/ggmp3/Q-SYS-Zoom-Room-REST-API/blob/main/4Devices.jpg "DevicesTab")
+
+
 ## NOTES:
 1. Zoom Server-to-Server OAuth App Configuration
    * This App needs to be created in order for Q-Sys Zoom Room scripts/plugins to authenticate with Zoom and download a token before the Zoom Room REST API command will function.
